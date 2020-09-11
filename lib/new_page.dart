@@ -1,4 +1,5 @@
-import 'package:banque/main.dart';
+import 'package:banque/after_login.dart';
+//import 'package:banque/main.dart';
 import 'package:banque/register_page.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter/gestures.dart';
@@ -53,7 +54,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
           // Navigate to Profile Screen & Sending Email to Next Screen.
           Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => new Home()));
+              builder: (BuildContext context) => new AfterLogin(
+                    email: emailController.text,
+                  )));
         } else {
           // If Email or Password did not Matched.
           // Hiding the CircularProgressIndicator.

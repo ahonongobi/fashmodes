@@ -4,50 +4,68 @@
 
 import 'dart:convert';
 
-List<Products> productsFromJson(String str) => List<Products>.from(json.decode(str).map((x) => Products.fromJson(x)));
+List<Products> productsFromJson(String str) =>
+    List<Products>.from(json.decode(str).map((x) => Products.fromJson(x)));
 
-String productsToJson(List<Products> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String productsToJson(List<Products> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Products {
-    Products({
-        this.the0,
-        this.the1,
-        this.the2,
-        this.the3,
-        this.id,
-        this.nom,
-        this.prix,
-        this.images,
-    });
+  Products({
+    this.the0,
+    this.the1,
+    this.the2,
+    this.the3,
+    this.the4,
+    this.the5,
+    this.id,
+    this.nom,
+    this.prix,
+    this.images,
+    this.styliste,
+    this.categories,
+  });
 
-    String the0;
-    String the1;
-    String the2;
-    String the3;
-    String id;
-    String nom;
-    String prix;
-    String images;
+  String the0;
+  String the1;
+  String the2;
+  String the3;
+  String the4;
+  String the5;
+  String id;
+  String nom;
+  String prix;
+  String images;
+  String styliste;
+  String categories;
 
-    factory Products.fromJson(Map<String, dynamic> json) => Products(
+  factory Products.fromJson(Map<String, dynamic> json) => Products(
         the0: json["0"],
         the1: json["1"],
         the2: json["2"],
         the3: json["3"],
+        the4: json["4"],
+        the5: json["5"],
         id: json["id"],
         nom: json["nom"],
         prix: json["prix"],
         images: json["images"],
-    );
+        styliste: json["styliste"],
+        categories: json["categories"],
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "0": the0,
         "1": the1,
         "2": the2,
         "3": the3,
+        "4": the4,
+        "5": the5,
         "id": id,
         "nom": nom,
         "prix": prix,
         "images": images,
-    };
+        "styliste": styliste,
+        "categories": categories,
+      };
 }

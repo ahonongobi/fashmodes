@@ -1,17 +1,14 @@
-import 'package:banque/categories.dart';
+import 'package:flutter/material.dart';
 import 'package:banque/new_page.dart'; //for signin screeen
 import 'package:banque/register_page.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
 import 'package:banque/product.dart';
 import 'package:banque/product-api.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
-//import 'package:cached_network_image/cached_network_image.dart';
 void main() {
   runApp(new MyApp());
 }
@@ -25,12 +22,21 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.indigo,
           fontFamily: GoogleFonts.openSans().fontFamily),
       debugShowCheckedModeBanner: false,
-      home: new Home(),
+
       //routes: <String, WidgetBuilder>{
       // "/a": (BuildContext context) => SignInScreen("New page")
       //},
     );
   }
+}
+
+showPage(String nom) {
+  BuildContext _context;
+  showDialog(
+      context: _context,
+      builder: (context) => Card(
+            child: Text(nom),
+          ));
 }
 
 Widget _currentPage;
@@ -46,8 +52,7 @@ Widget page0 = FutureBuilder<List<Products>>(
         shrinkWrap: true,
         itemBuilder: (context, index) => InkWell(
           onTap: () {
-            showPage(context, snapshot.data[index].categories,
-                snapshot.data[index].id, snapshot.data[index].images);
+            showPage(snapshot.data[index].nom);
           },
           child: Card(
             child: Stack(
@@ -89,15 +94,6 @@ Widget page0 = FutureBuilder<List<Products>>(
   },
 );
 
-showPage(BuildContext context, String holder, String id, String images) {
-  Navigator.of(context).push(new MaterialPageRoute(
-      builder: (BuildContext context) => new Categories(
-            categories: holder,
-            id: id,
-            images: images,
-          )));
-}
-
 Widget page1 = GridView.builder(
   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2, childAspectRatio: 1.0),
@@ -121,9 +117,7 @@ Widget page3 = FutureBuilder<List<Products>>(
           .map((data) => Column(
                 children: <Widget>[
                   GestureDetector(
-                    onTap: () {
-                      selectedItem(context, data.nom);
-                    },
+                    onTap: () {},
                     child: Row(children: [
                       Container(
                           width: 200,
@@ -156,30 +150,6 @@ Widget page3 = FutureBuilder<List<Products>>(
     );
   },
 );
-
-selectedItem(BuildContext context, String holder) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: new Text(holder),
-        actions: <Widget>[
-          FloatingActionButton(
-              onPressed: null,
-              child: Icon(Icons.mail),
-              backgroundColor: const Color(0xFF200087)),
-          FlatButton(
-            child: new Text("OK"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
 _calling() async {
   const url = 'tel:+12345678';
   if (await canLaunch(url)) {
@@ -206,12 +176,15 @@ Widget pageL = GridView.builder(
   ),
 );
 
-class Home extends StatefulWidget {
+class AfterLogin extends StatefulWidget {
+  final String email;
+  AfterLogin({Key key, @required this.email}) : super(key: key);
+
   @override
-  _HomeState createState() => _HomeState();
+  _AfterLoginState createState() => _AfterLoginState();
 }
 
-class _HomeState extends State<Home> {
+class _AfterLoginState extends State<AfterLogin> {
   int _currentIndex = 0;
   List<Widget> _pages;
 
@@ -247,8 +220,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    //context = _context; // Creating String Var to Hold sent Email.
-
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: const Color(0xFF200087),
@@ -280,7 +251,7 @@ class _HomeState extends State<Home> {
           children: <Widget>[
             new UserAccountsDrawerHeader(
               accountName: new Text("abyssinie"),
-              accountEmail: new Text("abyssiniea@gmail.com"),
+              accountEmail: new Text("Email:" + widget.email),
               currentAccountPicture: new CircleAvatar(
                 backgroundColor: Colors.orange,
                 child: new Text("A"),
