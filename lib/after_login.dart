@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'package:banque/allusers.dart';
+import 'package:banque/main.dart';
+import 'package:http/http.dart' as http;
+import 'package:banque/categories.dart';
 import 'package:flutter/material.dart';
 import 'package:banque/new_page.dart'; //for signin screeen
 import 'package:banque/register_page.dart';
@@ -30,15 +35,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-showPage(String nom) {
-  BuildContext _context;
-  showDialog(
-      context: _context,
-      builder: (context) => Card(
-            child: Text(nom),
-          ));
-}
-
 Widget _currentPage;
 void handleClick() {}
 Widget page0 = FutureBuilder<List<Products>>(
@@ -52,9 +48,13 @@ Widget page0 = FutureBuilder<List<Products>>(
         shrinkWrap: true,
         itemBuilder: (context, index) => InkWell(
           onTap: () {
-            showPage(snapshot.data[index].nom);
+            showPage(context, snapshot.data[index].categories,
+                snapshot.data[index].id, snapshot.data[index].images);
           },
           child: Card(
+            clipBehavior: Clip.antiAlias,
+            elevation: 10.8,
+            //shadowColor: Colors.amber,
             child: Stack(
               fit: StackFit.expand,
               children: <Widget>[
@@ -65,12 +65,13 @@ Widget page0 = FutureBuilder<List<Products>>(
 
                 //Text("${snapshot.data[index].id}")
                 Positioned(
-                  left: 0.0,
-                  bottom: 0.0,
+                  right: 0.0,
+                  top: 20.0,
                   child: Container(
+                    height: 30.0,
                     color: Colors.red,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(5.0),
                       child: Text(
                         "${snapshot.data[index].prix}",
                         style: TextStyle(
@@ -79,6 +80,18 @@ Widget page0 = FutureBuilder<List<Products>>(
                         ),
                       ),
                     ),
+                  ),
+                ),
+                Positioned(
+                  right: 0.0,
+                  bottom: 0.0,
+                  child: Container(
+                    child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: Colors.red,
+                        )),
                   ),
                 )
               ],
@@ -93,6 +106,14 @@ Widget page0 = FutureBuilder<List<Products>>(
     return CircularProgressIndicator();
   },
 );
+showPage(BuildContext context, String holder, String id, String images) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new Categories(
+            categories: holder,
+            id: id,
+            images: images,
+          )));
+}
 
 Widget page1 = GridView.builder(
   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -181,10 +202,23 @@ class AfterLogin extends StatefulWidget {
   AfterLogin({Key key, @required this.email}) : super(key: key);
 
   @override
-  _AfterLoginState createState() => _AfterLoginState();
+  _AfterLoginState createState() => _AfterLoginState(this.email);
 }
 
 class _AfterLoginState extends State<AfterLogin> {
+  String email;
+
+  _AfterLoginState(this.email);
+  Future persondata() async {
+    var url = "http://mestps.tech/persondata.php";
+
+    var data = {
+      'email': email,
+    };
+    var response = await http.post(url, body: json.encode(data));
+    return usersFromJson(response.body);
+  }
+
   int _currentIndex = 0;
   List<Widget> _pages;
 
@@ -220,6 +254,15 @@ class _AfterLoginState extends State<AfterLogin> {
 
   @override
   Widget build(BuildContext context) {
+    FutureBuilder(
+        future: persondata(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final nom = snapshot.data['id'];
+            return null;
+          }
+          return null;
+        });
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: const Color(0xFF200087),
@@ -249,20 +292,27 @@ class _AfterLoginState extends State<AfterLogin> {
       drawer: new Drawer(
         child: new ListView(
           children: <Widget>[
-            new UserAccountsDrawerHeader(
-              accountName: new Text("abyssinie"),
-              accountEmail: new Text("Email:" + widget.email),
-              currentAccountPicture: new CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: new Text("A"),
-              ),
-              // otherAccountsPictures: <Widget>[
-              //new CircleAvatar(
-              // backgroundColor: Colors.orange,
-              //child: new Text("G"),
-              // )
-              //],
-            ),
+            FutureBuilder(
+                future: persondata(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return new UserAccountsDrawerHeader(
+                      accountName: new Text("${snapshot.data[0].typeuser}"),
+                      accountEmail: new Text(widget.email),
+                      currentAccountPicture: new CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            "http://mestps.tech/upload/${snapshot.data[0].profileimages}"),
+                      ),
+                      // otherAccountsPictures: <Widget>[
+                      //new CircleAvatar(
+                      // backgroundColor: Colors.orange,
+                      //child: new Text("G"),
+                      // )
+                      //],
+                    );
+                  }
+                  return Text("loading...");
+                }),
             new ListTile(
               title: new Text("Acceuil"),
               leading: new Icon(Icons.home),
@@ -280,21 +330,12 @@ class _AfterLoginState extends State<AfterLogin> {
               },
             ),
             new ListTile(
-              title: new Text("Inscription"),
+              title: new Text("Se deconnecter"),
               leading: new Icon(Icons.account_box),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (BuildContext context) => new SignUpScreen()));
-              },
-            ),
-            new ListTile(
-              leading: new Icon(Icons.account_box),
-              title: new Text("Connexion"),
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (BuildContext context) => new SignInScreen()));
+                    builder: (BuildContext context) => new Home()));
               },
             ),
             new Divider(),

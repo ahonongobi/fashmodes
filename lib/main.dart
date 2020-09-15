@@ -35,6 +35,9 @@ class MyApp extends StatelessWidget {
 
 Widget _currentPage;
 void handleClick() {}
+Widget slider = Container(
+  child: Text("data"),
+);
 Widget page0 = FutureBuilder<List<Products>>(
   future: fetchProducts(),
   builder: (context, snapshot) {
@@ -50,6 +53,9 @@ Widget page0 = FutureBuilder<List<Products>>(
                 snapshot.data[index].id, snapshot.data[index].images);
           },
           child: Card(
+            clipBehavior: Clip.antiAlias,
+            elevation: 10.8,
+            //shadowColor: Colors.amber,
             child: Stack(
               fit: StackFit.expand,
               children: <Widget>[
@@ -60,12 +66,13 @@ Widget page0 = FutureBuilder<List<Products>>(
 
                 //Text("${snapshot.data[index].id}")
                 Positioned(
-                  left: 0.0,
-                  bottom: 0.0,
+                  right: 0.0,
+                  top: 20.0,
                   child: Container(
+                    height: 30.0,
                     color: Colors.red,
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(5.0),
                       child: Text(
                         "${snapshot.data[index].prix}",
                         style: TextStyle(
@@ -74,6 +81,18 @@ Widget page0 = FutureBuilder<List<Products>>(
                         ),
                       ),
                     ),
+                  ),
+                ),
+                Positioned(
+                  right: 0.0,
+                  bottom: 0.0,
+                  child: Container(
+                    child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Icon(
+                          Icons.favorite_border,
+                          color: Colors.red,
+                        )),
                   ),
                 )
               ],

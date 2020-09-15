@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:banque/new_page.dart';
+import 'package:banque/profile.dart';
+import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 //import 'package:banque/Animation/FadeAnimation.dart';
 class SignUpScreen extends StatefulWidget {
@@ -10,6 +16,10 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  List<String> cities = [
+    'styliste',
+    'simple',
+  ];
   final textController = new TextEditingController();
   final passwordController = new TextEditingController();
   final emailController = new TextEditingController();
@@ -22,6 +32,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _validateEmail = false;
   bool _validateNumero = false;
   bool visible = false;
+  File _image;
+  final picker = ImagePicker();
+  Future choiceImage() async {
+    var pickedImage = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      _image = File(pickedImage.path);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Future _submiting() async {
@@ -57,7 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'username': username,
         'email': email,
         'mdp': password,
-        'numero': numero
+        'numero': numero,
       };
       if (visible == true) {
         // Starting Web API Call.
@@ -68,27 +87,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         // If Web call Success than Hide the CircularProgressIndicator.
         if (response.statusCode == 200) {
+          uploadImgae();
           setState(() {
             visible = false;
           });
+          if (username == "styliste") {
+            styleadd(context, email);
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: new Text(
+                      "votre inscription a été enregistrée avec succès. se connecter"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: new Text("OK"),
+                      onPressed: () {
+                        Navigator.of(context).push(new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                new SignInScreen()));
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
         // Showing Alert Dialog with Response JSON Message.
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: new Text(message),
-              actions: <Widget>[
-                FlatButton(
-                  child: new Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        //showDialog(
+        //context: context,
+        //builder: (BuildContext context) {
+        //return AlertDialog(
+        // title: new Text(message),
+        //actions: <Widget>[
+        //  FlatButton(
+        // child: new Text("OK"),
+        // onPressed: () {
+        // styleadd(context, email);
+        //  },
+        // ),
+        // ],
+        // );
+        // },
+        // );
       }
     }
 
@@ -108,18 +151,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Expanded(
                     child: Container(
                         margin: EdgeInsets.only(right: 20, left: 10),
-                        child: TextField(
+                        child: DropDownField(
                           controller: textController,
-                          onChanged: (val) {
-                            val.isEmpty ? _validate = true : _validate = false;
-                            setState(() {});
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Nom d\'utilisateur',
-                            errorText: _validate
-                                ? 'aucun champ ne doit être vide'
-                                : null,
-                          ),
+                          required: true,
+                          hintText: 'Type d\'inscription',
+                          //labelText: 'Type d\'inscription',
+                          items: cities,
                         )))
               ],
             ),
@@ -212,6 +249,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
             ),
           ),
+          IconButton(
+              icon: Icon(Icons.file_upload),
+              onPressed: () {
+                choiceImage();
+              }),
+          Container(
+              padding: EdgeInsets.only(left: 50.0, right: 30.0),
+              child: _image == null
+                  ? Text(
+                      "pas d'image selectionéé ",
+                      style: TextStyle(
+                        color: Colors.green,
+                      ),
+                    )
+                  : Image.file(_image)),
           SizedBox(
             height: 40,
           ),
@@ -273,6 +325,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
+  Future uploadImgae() async {
+    final uri = Uri.parse("http://mestps.tech/registerProfile_user.php");
+    var request = http.MultipartRequest("POST", uri);
+    request.fields['email'] = emailController.text;
+    var pic = await http.MultipartFile.fromPath("image", _image.path);
+    request.files.add(pic);
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      print("succes");
+    } else {
+      print('died');
+    }
+  }
+
+  styleadd(BuildContext context, String email) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) => new Profile(
+              email: email,
+            )));
+  }
 }
 
 class BackButtonWidget extends StatelessWidget {
@@ -288,7 +362,7 @@ class BackButtonWidget extends StatelessWidget {
           image: DecorationImage(
               fit: BoxFit.cover,
               image: NetworkImage(
-                  'https://media.istockphoto.com/vectors/abstract-red-light-trail-on-blue-background-vector-id958693744?k=6&m=958693744&s=612x612&w=0&h=8fxI021WWzfZyfu-inVXxR_dejuWCZtGTSSQ6ftg5p4='))),
+                  'https://images.unsplash.com/photo-1541256942802-7b29531f0df8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMzk2fQ&auto=format&fit=crop&w=500&q=60'))),
       child: Positioned(
           child: Stack(
         children: <Widget>[

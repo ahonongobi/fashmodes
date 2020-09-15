@@ -3,6 +3,7 @@ import 'dart:convert';
 //import 'package:banque/product-api.dart';
 //import 'package:banque/main.dart';
 import 'package:banque/product.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 //import 'package:banque/productcategories-api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -104,14 +105,41 @@ class _CategoriesState extends State<Categories> {
         //mainAxisSize: MainAxisSize.min,
 
         children: <Widget>[
-          Image.network(
-            images,
-            height: 220.0,
+          Container(
+            height: 250,
+            child: Carousel(
+              boxFit: BoxFit.fill,
+              images: [
+                NetworkImage(
+                  images,
+                ),
+                NetworkImage(
+                  images,
+                ),
+                NetworkImage(
+                  images,
+                )
+              ],
+            ),
           ),
+
+          // Image.network(
+          // images,
+          //height: 220.0,
+          // ),
+
           const ListTile(
             leading: Icon(Icons.shopping_cart, size: 50),
             title: Text('Heart Shaker'),
             subtitle: Text('500F'),
+          ),
+          RaisedButton(
+            elevation: 8.0,
+            onPressed: null,
+            child: Text(
+              "Commander",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           Expanded(child: mybody())
         ],
