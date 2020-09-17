@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:banque/addproduct.dart';
 import 'package:banque/allusers.dart';
 import 'package:banque/main.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,9 @@ import 'package:share/share.dart';
 import 'package:banque/product.dart';
 import 'package:banque/product-api.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:banque/styliste-api.dart';
+import 'package:banque/styliste.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 void main() {
   runApp(new MyApp());
@@ -128,17 +132,20 @@ Widget page1 = GridView.builder(
     ),
   ),
 );
-Widget page3 = FutureBuilder<List<Products>>(
-  future: fetchProducts(),
+Widget page3 = FutureBuilder<List<Styliste>>(
+  future: fetchStylistes(),
   builder: (context, snapshot) {
     if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
     return ListView(
+      padding: EdgeInsets.only(top: 15.0),
       children: snapshot.data
           .map((data) => Column(
                 children: <Widget>[
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      selectedItem(context, data.nom, data.telephone);
+                    },
                     child: Row(children: [
                       Container(
                           width: 200,
@@ -147,21 +154,29 @@ Widget page3 = FutureBuilder<List<Products>>(
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(8.0),
                               child: Image.network(
-                                "${data.styliste}",
+                                "http://mestps.tech/upload/${data.photo}",
                                 width: 200,
                                 height: 100,
                                 fit: BoxFit.cover,
                               ))),
-                      FloatingActionButton(
-                        child: Icon(Icons.phone),
-                        onPressed: () {
-                          _calling();
-                        },
-                        backgroundColor: const Color(0xFF200087),
-                      ),
                       Flexible(
-                          child:
-                              Text(data.nom, style: TextStyle(fontSize: 18))),
+                        child: Text(data.telephone),
+                      ),
+
+                      // FloatingActionButton(
+                      // child: Icon(Icons.phone),
+                      //onPressed: () {
+                      //  _calling();
+                      //},
+                      // backgroundColor: const Color(0xFF200087),
+                      //),
+                      Flexible(
+                        child: Text(
+                          data.nom,
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                     ]),
                   ),
                   Divider(color: Colors.black),
@@ -171,7 +186,26 @@ Widget page3 = FutureBuilder<List<Products>>(
     );
   },
 );
-_calling() async {
+selectedItem(BuildContext context, String holder, String telephone) {
+  AwesomeDialog(
+    context: context,
+    animType: AnimType.SCALE,
+    dialogType: DialogType.INFO,
+    //body: Center(
+    // child: Text(
+    //  'If the body is specified, then title and description will be ignored, this allows to further customize the dialogue.',
+    //style: TextStyle(fontStyle: FontStyle.italic),
+    //),
+    //),
+    btnOkText: "Produits..",
+    btnOkColor: const Color(0xFF200087),
+    tittle: '$holder',
+    desc: '$telephone',
+    btnOkOnPress: () {},
+  ).show();
+}
+
+calling() async {
   const url = 'tel:+12345678';
   if (await canLaunch(url)) {
     await launch(url);
@@ -370,7 +404,10 @@ class _AfterLoginState extends State<AfterLogin> {
             backgroundColor: const Color(0xFF200087),
             child: Icon(Icons.add),
             label: "Ajouter",
-            onTap: () => print('Ajouter'),
+            onTap: () {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new WizardForm()));
+            },
           )
         ],
       ),

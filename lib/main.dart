@@ -1,6 +1,8 @@
 import 'package:banque/categories.dart';
 import 'package:banque/new_page.dart'; //for signin screeen
 import 'package:banque/register_page.dart';
+import 'package:banque/styliste-api.dart';
+import 'package:banque/styliste.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -8,8 +10,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:share/share.dart';
 import 'package:banque/product.dart';
 import 'package:banque/product-api.dart';
-
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
+//import 'package:cached_network_image/cached_network_image.dart';
 
 //import 'package:cached_network_image/cached_network_image.dart';
 void main() {
@@ -130,18 +135,19 @@ Widget page1 = GridView.builder(
     ),
   ),
 );
-Widget page3 = FutureBuilder<List<Products>>(
-  future: fetchProducts(),
+Widget page3 = FutureBuilder<List<Styliste>>(
+  future: fetchStylistes(),
   builder: (context, snapshot) {
     if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
     return ListView(
+      padding: EdgeInsets.only(top: 15.0),
       children: snapshot.data
           .map((data) => Column(
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      selectedItem(context, data.nom);
+                      selectedItem(context, data.nom, data.telephone);
                     },
                     child: Row(children: [
                       Container(
@@ -151,21 +157,29 @@ Widget page3 = FutureBuilder<List<Products>>(
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(8.0),
                               child: Image.network(
-                                "${data.styliste}",
+                                "http://mestps.tech/upload/${data.photo}",
                                 width: 200,
                                 height: 100,
                                 fit: BoxFit.cover,
                               ))),
-                      FloatingActionButton(
-                        child: Icon(Icons.phone),
-                        onPressed: () {
-                          _calling();
-                        },
-                        backgroundColor: const Color(0xFF200087),
-                      ),
                       Flexible(
-                          child:
-                              Text(data.nom, style: TextStyle(fontSize: 18))),
+                        child: Text(data.telephone),
+                      ),
+
+                      // FloatingActionButton(
+                      // child: Icon(Icons.phone),
+                      //onPressed: () {
+                      //  _calling();
+                      //},
+                      // backgroundColor: const Color(0xFF200087),
+                      //),
+                      Flexible(
+                        child: Text(
+                          data.nom,
+                          style: TextStyle(fontSize: 18),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                     ]),
                   ),
                   Divider(color: Colors.black),
@@ -176,27 +190,23 @@ Widget page3 = FutureBuilder<List<Products>>(
   },
 );
 
-selectedItem(BuildContext context, String holder) {
-  showDialog(
+selectedItem(BuildContext context, String holder, String telephone) {
+  AwesomeDialog(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: new Text(holder),
-        actions: <Widget>[
-          FloatingActionButton(
-              onPressed: null,
-              child: Icon(Icons.mail),
-              backgroundColor: const Color(0xFF200087)),
-          FlatButton(
-            child: new Text("OK"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
+    animType: AnimType.SCALE,
+    dialogType: DialogType.INFO,
+    //body: Center(
+    // child: Text(
+    //  'If the body is specified, then title and description will be ignored, this allows to further customize the dialogue.',
+    //style: TextStyle(fontStyle: FontStyle.italic),
+    //),
+    //),
+    btnOkText: "Produits..",
+    btnOkColor: const Color(0xFF200087),
+    tittle: '$holder',
+    desc: '$telephone',
+    btnOkOnPress: () {},
+  ).show();
 }
 
 _calling() async {
