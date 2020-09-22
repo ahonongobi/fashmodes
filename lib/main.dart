@@ -1,7 +1,10 @@
 import 'package:banque/categories.dart';
+import 'package:banque/filter.dart';
 import 'package:banque/new_page.dart'; //for signin screeen
 import 'package:banque/register_page.dart';
+import 'package:banque/search.dart';
 import 'package:banque/styliste-api.dart';
+import 'package:banque/styliste-product.dart';
 import 'package:banque/styliste.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +57,13 @@ Widget page0 = FutureBuilder<List<Products>>(
         shrinkWrap: true,
         itemBuilder: (context, index) => InkWell(
           onTap: () {
-            showPage(context, snapshot.data[index].categories,
-                snapshot.data[index].id, snapshot.data[index].images);
+            showPage(
+              context,
+              snapshot.data[index].categories,
+              snapshot.data[index].id,
+              snapshot.data[index].images,
+              snapshot.data[index].description,
+            );
           },
           child: Card(
             clipBehavior: Clip.antiAlias,
@@ -65,7 +73,8 @@ Widget page0 = FutureBuilder<List<Products>>(
               fit: StackFit.expand,
               children: <Widget>[
                 Image.network(
-                  "${snapshot.data[index].images}",
+                  "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
+                  //"${snapshot.data[index].images}",
                   fit: BoxFit.cover,
                 ),
 
@@ -107,18 +116,22 @@ Widget page0 = FutureBuilder<List<Products>>(
         ),
       );
     }
-
+    return Center(
+      child: CircularProgressIndicator(),
+    );
     //return Text("loading");
-    return CircularProgressIndicator();
+    //return CircularProgressIndicator();
   },
 );
 
-showPage(BuildContext context, String holder, String id, String images) {
+showPage(BuildContext context, String holder, String id, String images,
+    String description) {
   Navigator.of(context).push(new MaterialPageRoute(
       builder: (BuildContext context) => new Categories(
             categories: holder,
             id: id,
             images: images,
+            description: description,
           )));
 }
 
@@ -147,7 +160,8 @@ Widget page3 = FutureBuilder<List<Styliste>>(
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      selectedItem(context, data.nom, data.telephone);
+                      selectedItem(
+                          context, data.nom, data.telephone, data.idstyliste);
                     },
                     child: Row(children: [
                       Container(
@@ -190,7 +204,7 @@ Widget page3 = FutureBuilder<List<Styliste>>(
   },
 );
 
-selectedItem(BuildContext context, String holder, String telephone) {
+selectedItem(BuildContext context, String holder, String telephone, String id) {
   AwesomeDialog(
     context: context,
     animType: AnimType.SCALE,
@@ -205,8 +219,17 @@ selectedItem(BuildContext context, String holder, String telephone) {
     btnOkColor: const Color(0xFF200087),
     tittle: '$holder',
     desc: '$telephone',
-    btnOkOnPress: () {},
+    btnOkOnPress: () {
+      showStylisteDetails(context, id);
+    },
   ).show();
+}
+
+showStylisteDetails(BuildContext context, String id_styliste) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new StyleProduct(
+            id: id_styliste,
+          )));
 }
 
 _calling() async {
@@ -381,7 +404,19 @@ class _HomeState extends State<Home> {
             backgroundColor: const Color(0xFF200087),
             child: Icon(Icons.search),
             label: "Rechercher",
-            onTap: () => print('Rechercher'),
+            onTap: () {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new Search()));
+            },
+          ),
+          SpeedDialChild(
+            backgroundColor: const Color(0xFF200087),
+            child: Icon(Icons.search),
+            label: "Filtrer",
+            onTap: () {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new ChoiceChipDisplay()));
+            },
           ),
           SpeedDialChild(
             backgroundColor: const Color(0xFF200087),

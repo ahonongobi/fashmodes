@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:banque/addproduct.dart';
 import 'package:banque/allusers.dart';
 import 'package:banque/main.dart';
+import 'package:banque/search.dart';
 import 'package:http/http.dart' as http;
 import 'package:banque/categories.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +64,8 @@ Widget page0 = FutureBuilder<List<Products>>(
               fit: StackFit.expand,
               children: <Widget>[
                 Image.network(
-                  "${snapshot.data[index].images}",
+                  "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
+                  //"${snapshot.data[index].images}",
                   fit: BoxFit.cover,
                 ),
 
@@ -105,9 +107,11 @@ Widget page0 = FutureBuilder<List<Products>>(
         ),
       );
     }
-
+    return Center(
+      child: CircularProgressIndicator(),
+    );
     //return Text("loading");
-    return CircularProgressIndicator();
+    //return CircularProgressIndicator();
   },
 );
 showPage(BuildContext context, String holder, String id, String images) {
@@ -398,15 +402,17 @@ class _AfterLoginState extends State<AfterLogin> {
             backgroundColor: const Color(0xFF200087),
             child: Icon(Icons.search),
             label: "Rechercher",
-            onTap: () => print('Rechercher'),
+            onTap: () {
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new Search()));
+            },
           ),
           SpeedDialChild(
             backgroundColor: const Color(0xFF200087),
             child: Icon(Icons.add),
             label: "Ajouter",
             onTap: () {
-              Navigator.of(context).push(new MaterialPageRoute(
-                  builder: (BuildContext context) => new WizardForm()));
+              addFunction(context, widget.email);
             },
           )
         ],
@@ -446,4 +452,11 @@ class _AfterLoginState extends State<AfterLogin> {
       ),
     );
   }
+}
+
+addFunction(BuildContext context, String holder) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new WizardForm(
+            email: holder,
+          )));
 }

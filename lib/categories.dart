@@ -3,21 +3,29 @@ import 'dart:convert';
 //import 'package:banque/product-api.dart';
 //import 'package:banque/main.dart';
 import 'package:banque/product.dart';
+import 'package:banque/src/pages/product_detail.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 //import 'package:banque/productcategories-api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:snapping_page_scroll/snapping_page_scroll.dart';
 
 class Categories extends StatefulWidget {
   final String categories;
   final String id;
   final String images;
-  Categories({Key key, @required this.categories, this.id, this.images})
+  final String description;
+  Categories(
+      {Key key,
+      @required this.categories,
+      this.id,
+      this.images,
+      this.description})
       : super(key: key);
 
   @override
   _CategoriesState createState() =>
-      _CategoriesState(this.categories, this.id, this.images);
+      _CategoriesState(this.categories, this.id, this.images, this.description);
   //final Produit produit;
 }
 
@@ -29,12 +37,14 @@ class _CategoriesState extends State<Categories> {
     categories = categories;
     id = id;
     images = images;
+    description = description;
   }
 
   String categories;
   String id;
   String images;
-  _CategoriesState(this.categories, this.id, this.images);
+  String description;
+  _CategoriesState(this.categories, this.id, this.images, this.description);
   Future<List<Products>> fetchProducts() async {
     String url = "http://mestps.tech/product_categories.php";
 
@@ -51,16 +61,26 @@ class _CategoriesState extends State<Categories> {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, childAspectRatio: 1.0),
+              //scrollDirection: Axis.horizontal,
               itemCount: snapshot.data.length,
               shrinkWrap: true,
               itemBuilder: (context, index) => InkWell(
-                onTap: () {},
+                onTap: () {
+                  showPage(
+                      context,
+                      snapshot.data[index].prix,
+                      snapshot.data[index].nom,
+                      snapshot.data[index].id,
+                      snapshot.data[index].description,
+                      snapshot.data[index].images);
+                },
                 child: Card(
                   child: Stack(
                     fit: StackFit.expand,
                     children: <Widget>[
                       Image.network(
-                        "${snapshot.data[index].images}",
+                        "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
+                        //"${snapshot.data[index].images}",
                         fit: BoxFit.cover,
                       ),
 
@@ -111,13 +131,14 @@ class _CategoriesState extends State<Categories> {
               boxFit: BoxFit.fill,
               images: [
                 NetworkImage(
-                  images,
+                  "http://mestps.tech/upload/categories/$images",
+                  // images,
                 ),
                 NetworkImage(
-                  images,
+                  "http://mestps.tech/upload/categories/$images",
                 ),
                 NetworkImage(
-                  images,
+                  "http://mestps.tech/upload/categories/$images",
                 )
               ],
             ),
@@ -141,9 +162,21 @@ class _CategoriesState extends State<Categories> {
               style: TextStyle(color: Colors.white),
             ),
           ),
+          //mybody()
           Expanded(child: mybody())
         ],
       ),
     );
   }
+}
+
+showPage(BuildContext context, String prix, String nom, String id,
+    String description, String images) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new ProductDetailPage(
+            prix: prix,
+            nom: nom,
+            description: description,
+            images: images,
+          )));
 }

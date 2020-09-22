@@ -26,7 +26,7 @@ dependencies:
   http: ^0.12.2
   rename: ^1.2.0
   gestures: ^0.0.1
- 
+  flappy_search_bar: ^1.4.1
   rflutter_alert: ^1.0.3
   url_launcher: ^5.2.5
   carousel_pro: ^0.013
@@ -34,6 +34,11 @@ dependencies:
   dropdownfield: ^1.0.0
   awesome_dialog: 
   progress_state_button: ^1.0.1
+  snapping_page_scroll: ^1.2.7
+  font_awesome_flutter: ^8.2.0
+  flutter_staggered_grid_view: ^0.3.0
+  transparent_image: ^1.0.0
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
