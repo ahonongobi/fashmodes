@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:banque/main.dart';
+import 'package:banque/src/pages/product_detail.dart';
+import 'package:banque/src/widgets/extentions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -25,14 +27,15 @@ import 'package:http/http.dart' as http;
 
 class StyleProduct extends StatefulWidget {
   final String id;
-  StyleProduct({Key key, @required this.id}) : super(key: key);
+  final String email;
+  StyleProduct({Key key, @required this.id, this.email}) : super(key: key);
   @override
-  _StyleProductState createState() => _StyleProductState(this.id);
+  _StyleProductState createState() => _StyleProductState(this.id, this.email);
 }
 
 class _StyleProductState extends State<StyleProduct> {
   String id;
-
+  String email;
   List<String> imageList = [
     'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTabCvhGXYSUX8RD2qaRVrmlspfX5jJWb4ywQ&usqp=CAU',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6GBk_RFrYFuHUvstSyB0PxRGA9bdT_grwOQ&usqp=CAU',
@@ -49,6 +52,7 @@ class _StyleProductState extends State<StyleProduct> {
     super.initState();
 
     id = id;
+    email = email;
   }
 
   Widget myProd() => FutureBuilder<List<Products>>(
@@ -62,18 +66,33 @@ class _StyleProductState extends State<StyleProduct> {
                 mainAxisSpacing: 12,
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.all(Radius.circular(12))),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                      child: FadeInImage.memoryNetwork(
-                        placeholder: kTransparentImage,
-                        //image: imageList[index],
-                        image:
-                            "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
-                        fit: BoxFit.cover,
+                  return InkWell(
+                    onTap: () {
+                      showPage2(
+                        context,
+                        snapshot.data[index].prix,
+                        snapshot.data[index].nom,
+                        //snapshot.data[index].id,
+
+                        snapshot.data[index].description,
+                        snapshot.data[index].images,
+                        snapshot.data[index].id_styliste,
+                        email,
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.all(Radius.circular(12))),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          //image: imageList[index],
+                          image:
+                              "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   );
@@ -97,7 +116,7 @@ class _StyleProductState extends State<StyleProduct> {
     return productsFromJson(response.body);
   }
 
-  _StyleProductState(this.id);
+  _StyleProductState(this.id, this.email);
   Widget build(BuildContext context) {
     return Scaffold(
       body: myProd(),
@@ -110,4 +129,25 @@ class _StyleProductState extends State<StyleProduct> {
       ),
     );
   }
+}
+
+showPage2(
+  BuildContext context,
+  String prix,
+  String nom,
+  String description,
+  String images,
+  String idstyliste,
+  String email,
+) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new ProductDetailPage(
+            prix: prix,
+            nom: nom,
+            description: description,
+            //idstyliste: idstyliste,
+            images: images,
+            idstyliste: idstyliste,
+            email: email,
+          )));
 }

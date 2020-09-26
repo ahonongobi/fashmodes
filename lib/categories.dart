@@ -15,17 +15,21 @@ class Categories extends StatefulWidget {
   final String id;
   final String images;
   final String description;
+  final String idstyliste;
+  final String email;
   Categories(
       {Key key,
       @required this.categories,
       this.id,
       this.images,
-      this.description})
+      this.description,
+      this.idstyliste,
+      this.email})
       : super(key: key);
 
   @override
-  _CategoriesState createState() =>
-      _CategoriesState(this.categories, this.id, this.images, this.description);
+  _CategoriesState createState() => _CategoriesState(this.categories, this.id,
+      this.images, this.description, this.idstyliste, this.email);
   //final Produit produit;
 }
 
@@ -38,13 +42,18 @@ class _CategoriesState extends State<Categories> {
     id = id;
     images = images;
     description = description;
+    idstyliste = idstyliste;
+    email = email;
   }
 
   String categories;
   String id;
   String images;
   String description;
-  _CategoriesState(this.categories, this.id, this.images, this.description);
+  String idstyliste;
+  String email;
+  _CategoriesState(this.categories, this.id, this.images, this.description,
+      this.idstyliste, this.email);
   Future<List<Products>> fetchProducts() async {
     String url = "http://mestps.tech/product_categories.php";
 
@@ -54,7 +63,28 @@ class _CategoriesState extends State<Categories> {
     return productsFromJson(response.body);
   }
 
-  mybody() => FutureBuilder<List<Products>>(
+  Widget widget2() {
+    return Container(
+      height: 250,
+      child: Carousel(
+        boxFit: BoxFit.fill,
+        images: [
+          NetworkImage(
+            "http://mestps.tech/upload/categories/$images",
+            // images,
+          ),
+          NetworkImage(
+            "http://mestps.tech/upload/categories/$images",
+          ),
+          NetworkImage(
+            "http://mestps.tech/upload/categories/$images",
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget mybody() => FutureBuilder<List<Products>>(
         future: fetchProducts(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -67,16 +97,20 @@ class _CategoriesState extends State<Categories> {
               itemBuilder: (context, index) => InkWell(
                 onTap: () {
                   showPage(
-                      context,
-                      snapshot.data[index].prix,
-                      snapshot.data[index].nom,
-                      snapshot.data[index].id,
-                      snapshot.data[index].description,
-                      snapshot.data[index].images);
+                    context,
+                    snapshot.data[index].prix,
+                    snapshot.data[index].nom,
+                    //snapshot.data[index].id,
+
+                    snapshot.data[index].description,
+                    snapshot.data[index].images,
+                    snapshot.data[index].id_styliste,
+                    email,
+                  );
                 },
                 child: Card(
                   child: Stack(
-                    fit: StackFit.expand,
+                    //fit: StackFit.expand,
                     children: <Widget>[
                       Image.network(
                         "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
@@ -86,14 +120,15 @@ class _CategoriesState extends State<Categories> {
 
                       //Text("${snapshot.data[index].id}")
                       Positioned(
-                        left: 0.0,
+                        right: 0.0,
                         bottom: 0.0,
                         child: Container(
+                          height: 40.0,
                           color: Colors.red,
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Text(
-                              "${snapshot.data[index].prix}",
+                              "${snapshot.data[index].prix}\FCFA",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -121,62 +156,29 @@ class _CategoriesState extends State<Categories> {
         backgroundColor: const Color(0xFF200087),
         title: new Text('Categories'),
       ),
-      body: Column(
-        //mainAxisSize: MainAxisSize.min,
-
+      body: ListView(
         children: <Widget>[
-          Container(
-            height: 250,
-            child: Carousel(
-              boxFit: BoxFit.fill,
-              images: [
-                NetworkImage(
-                  "http://mestps.tech/upload/categories/$images",
-                  // images,
-                ),
-                NetworkImage(
-                  "http://mestps.tech/upload/categories/$images",
-                ),
-                NetworkImage(
-                  "http://mestps.tech/upload/categories/$images",
-                )
-              ],
-            ),
-          ),
-
-          // Image.network(
-          // images,
-          //height: 220.0,
-          // ),
-
-          const ListTile(
-            leading: Icon(Icons.shopping_cart, size: 50),
-            title: Text('Heart Shaker'),
-            subtitle: Text('500F'),
-          ),
-          RaisedButton(
-            elevation: 8.0,
-            onPressed: null,
-            child: Text(
-              "Commander",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          //mybody()
-          Expanded(child: mybody())
+          //SizedBox(
+          //height: MediaQuery.of(context).size.height * .25,
+          //child: widget2(),
+          //),
+          widget2(),
+          mybody(),
         ],
       ),
     );
   }
 }
 
-showPage(BuildContext context, String prix, String nom, String id,
-    String description, String images) {
+showPage(BuildContext context, String prix, String nom, String description,
+    String images, String idstyliste, String email) {
   Navigator.of(context).push(new MaterialPageRoute(
       builder: (BuildContext context) => new ProductDetailPage(
             prix: prix,
             nom: nom,
             description: description,
             images: images,
+            idstyliste: idstyliste,
+            email: email,
           )));
 }

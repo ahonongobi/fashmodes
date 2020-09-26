@@ -15,6 +15,7 @@ import 'package:banque/product.dart';
 import 'package:banque/product-api.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 //import 'package:cached_network_image/cached_network_image.dart';
@@ -63,6 +64,7 @@ Widget page0 = FutureBuilder<List<Products>>(
               snapshot.data[index].id,
               snapshot.data[index].images,
               snapshot.data[index].description,
+              snapshot.data[index].id_styliste,
             );
           },
           child: Card(
@@ -88,7 +90,7 @@ Widget page0 = FutureBuilder<List<Products>>(
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                        "${snapshot.data[index].prix}",
+                        "${snapshot.data[index].prix}\FCFA",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -125,11 +127,12 @@ Widget page0 = FutureBuilder<List<Products>>(
 );
 
 showPage(BuildContext context, String holder, String id, String images,
-    String description) {
+    String description, String idstyliste) {
   Navigator.of(context).push(new MaterialPageRoute(
       builder: (BuildContext context) => new Categories(
             categories: holder,
             id: id,
+            idstyliste: idstyliste,
             images: images,
             description: description,
           )));

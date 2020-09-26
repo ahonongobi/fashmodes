@@ -3,6 +3,7 @@ import 'package:banque/addproduct.dart';
 import 'package:banque/allusers.dart';
 import 'package:banque/main.dart';
 import 'package:banque/search.dart';
+import 'package:banque/styliste-product.dart';
 import 'package:http/http.dart' as http;
 import 'package:banque/categories.dart';
 import 'package:flutter/material.dart';
@@ -42,84 +43,23 @@ class MyApp extends StatelessWidget {
 
 Widget _currentPage;
 void handleClick() {}
-Widget page0 = FutureBuilder<List<Products>>(
-  future: fetchProducts(),
-  builder: (context, snapshot) {
-    if (snapshot.hasData) {
-      return GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, childAspectRatio: 1.0),
-        itemCount: snapshot.data.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) => InkWell(
-          onTap: () {
-            showPage(context, snapshot.data[index].categories,
-                snapshot.data[index].id, snapshot.data[index].images);
-          },
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            elevation: 10.8,
-            //shadowColor: Colors.amber,
-            child: Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                Image.network(
-                  "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
-                  //"${snapshot.data[index].images}",
-                  fit: BoxFit.cover,
-                ),
-
-                //Text("${snapshot.data[index].id}")
-                Positioned(
-                  right: 0.0,
-                  top: 20.0,
-                  child: Container(
-                    height: 30.0,
-                    color: Colors.red,
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        "${snapshot.data[index].prix}",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 0.0,
-                  bottom: 0.0,
-                  child: Container(
-                    child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: Colors.red,
-                        )),
-                  ),
-                )
-              ],
-            ),
-            //return Text("${snapshot.data[index].id}");
-          ),
-        ),
-      );
-    }
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-    //return Text("loading");
-    //return CircularProgressIndicator();
-  },
-);
-showPage(BuildContext context, String holder, String id, String images) {
+showPage(
+  BuildContext context,
+  String holder,
+  String id,
+  String images,
+  String description,
+  String idstyliste,
+  String email,
+) {
   Navigator.of(context).push(new MaterialPageRoute(
       builder: (BuildContext context) => new Categories(
             categories: holder,
             id: id,
+            idstyliste: idstyliste,
             images: images,
+            description: description,
+            email: email,
           )));
 }
 
@@ -136,61 +76,9 @@ Widget page1 = GridView.builder(
     ),
   ),
 );
-Widget page3 = FutureBuilder<List<Styliste>>(
-  future: fetchStylistes(),
-  builder: (context, snapshot) {
-    if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
 
-    return ListView(
-      padding: EdgeInsets.only(top: 15.0),
-      children: snapshot.data
-          .map((data) => Column(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      selectedItem(context, data.nom, data.telephone);
-                    },
-                    child: Row(children: [
-                      Container(
-                          width: 200,
-                          height: 100,
-                          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.network(
-                                "http://mestps.tech/upload/${data.photo}",
-                                width: 200,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ))),
-                      Flexible(
-                        child: Text(data.telephone),
-                      ),
-
-                      // FloatingActionButton(
-                      // child: Icon(Icons.phone),
-                      //onPressed: () {
-                      //  _calling();
-                      //},
-                      // backgroundColor: const Color(0xFF200087),
-                      //),
-                      Flexible(
-                        child: Text(
-                          data.nom,
-                          style: TextStyle(fontSize: 18),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ]),
-                  ),
-                  Divider(color: Colors.black),
-                ],
-              ))
-          .toList(),
-    );
-  },
-);
-selectedItem(BuildContext context, String holder, String telephone) {
+selectedItem(BuildContext context, String holder, String telephone, String id,
+    String email) {
   AwesomeDialog(
     context: context,
     animType: AnimType.SCALE,
@@ -205,8 +93,18 @@ selectedItem(BuildContext context, String holder, String telephone) {
     btnOkColor: const Color(0xFF200087),
     tittle: '$holder',
     desc: '$telephone',
-    btnOkOnPress: () {},
+    btnOkOnPress: () {
+      showStylisteDetails(context, id, email);
+    },
   ).show();
+}
+
+showStylisteDetails(BuildContext context, String id_styliste, String email) {
+  Navigator.of(context).push(new MaterialPageRoute(
+      builder: (BuildContext context) => new StyleProduct(
+            id: id_styliste,
+            email: email,
+          )));
 }
 
 calling() async {
@@ -245,8 +143,16 @@ class AfterLogin extends StatefulWidget {
 
 class _AfterLoginState extends State<AfterLogin> {
   String email;
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = 0;
+    _pages = [page0(), page2, page3()];
+    _currentPage = page0();
+  }
 
   _AfterLoginState(this.email);
+
   Future persondata() async {
     var url = "http://mestps.tech/persondata.php";
 
@@ -257,20 +163,148 @@ class _AfterLoginState extends State<AfterLogin> {
     return usersFromJson(response.body);
   }
 
+  Widget page0() => FutureBuilder<List<Products>>(
+        future: fetchProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, childAspectRatio: 1.0),
+              itemCount: snapshot.data.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) => InkWell(
+                onTap: () {
+                  showPage(
+                    context,
+                    snapshot.data[index].categories,
+                    snapshot.data[index].id,
+                    snapshot.data[index].images,
+                    snapshot.data[index].description,
+                    snapshot.data[index].id_styliste,
+                    email,
+                  );
+                },
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 10.8,
+                  //shadowColor: Colors.amber,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: <Widget>[
+                      Image.network(
+                        "http://mestps.tech/upload/categories/${snapshot.data[index].images}",
+                        //"${snapshot.data[index].images}",
+                        fit: BoxFit.cover,
+                      ),
+
+                      //Text("${snapshot.data[index].id}")
+                      Positioned(
+                        right: 0.0,
+                        top: 20.0,
+                        child: Container(
+                          height: 30.0,
+                          color: Colors.red,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(
+                              "${snapshot.data[index].prix}\FCFA",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0.0,
+                        bottom: 0.0,
+                        child: Container(
+                          child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Icon(
+                                Icons.favorite_border,
+                                color: Colors.red,
+                              )),
+                        ),
+                      )
+                    ],
+                  ),
+                  //return Text("${snapshot.data[index].id}");
+                ),
+              ),
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+          //return Text("loading");
+          //return CircularProgressIndicator();
+        },
+      );
+
+  Widget page3() => FutureBuilder<List<Styliste>>(
+        future: fetchStylistes(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+
+          return ListView(
+            padding: EdgeInsets.only(top: 15.0),
+            children: snapshot.data
+                .map((data) => Column(
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            selectedItem(context, data.nom, data.telephone,
+                                data.idstyliste, email);
+                          },
+                          child: Row(children: [
+                            Container(
+                                width: 200,
+                                height: 100,
+                                margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Image.network(
+                                      "http://mestps.tech/upload/${data.photo}",
+                                      width: 200,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ))),
+                            Flexible(
+                              child: Text(data.telephone),
+                            ),
+
+                            // FloatingActionButton(
+                            // child: Icon(Icons.phone),
+                            //onPressed: () {
+                            //  _calling();
+                            //},
+                            // backgroundColor: const Color(0xFF200087),
+                            //),
+                            Flexible(
+                              child: Text(
+                                data.nom,
+                                style: TextStyle(fontSize: 18),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ]),
+                        ),
+                        Divider(color: Colors.black),
+                      ],
+                    ))
+                .toList(),
+          );
+        },
+      );
   int _currentIndex = 0;
   List<Widget> _pages;
 
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = 0;
-    _pages = [page0, page2, page3];
-    _currentPage = page0;
-  }
-
   void changeTab(int index) {
     setState(() {
-      _pages = [page0, page2, page3];
+      _pages = [page0(), page2, page3()];
       _currentIndex = index;
       _currentPage = _pages[index];
     });
@@ -283,7 +317,7 @@ class _AfterLoginState extends State<AfterLogin> {
             builder: (BuildContext context) => new SignInScreen()));
 
         break;
-      case 'Inscription':
+      case 'Inscriptions':
         Navigator.of(context).push(new MaterialPageRoute(
             builder: (BuildContext context) => new SignUpScreen()));
         break;
@@ -301,6 +335,7 @@ class _AfterLoginState extends State<AfterLogin> {
           }
           return null;
         });
+
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: const Color(0xFF200087),
@@ -336,7 +371,7 @@ class _AfterLoginState extends State<AfterLogin> {
                   if (snapshot.hasData) {
                     return new UserAccountsDrawerHeader(
                       accountName: new Text("${snapshot.data[0].typeuser}"),
-                      accountEmail: new Text(widget.email),
+                      accountEmail: new Text(email),
                       currentAccountPicture: new CircleAvatar(
                         backgroundImage: NetworkImage(
                             "http://mestps.tech/upload/${snapshot.data[0].profileimages}"),

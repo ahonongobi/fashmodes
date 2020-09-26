@@ -1,26 +1,42 @@
+import 'dart:convert';
+
+import 'package:banque/src/pages/shopping_cart_page.dart';
 import 'package:flutter/material.dart';
 import 'package:banque/src/model/data.dart';
 import 'package:banque/src/themes/light_color.dart';
 import 'package:banque/src/themes/theme.dart';
 import 'package:banque/src/widgets/title_text.dart';
 import 'package:banque/src/widgets/extentions.dart';
+import 'package:badges/badges.dart';
+import 'package:http/http.dart' as http;
+import '../../product.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String nom;
   final String prix;
   final String images;
   final String description;
+  final String idstyliste;
+  final String email;
   ProductDetailPage(
-      {Key key, @required this.images, this.nom, this.prix, this.description})
+      {Key key,
+      @required this.images,
+      this.nom,
+      this.prix,
+      this.description,
+      this.idstyliste,
+      this.email})
       : super(key: key);
 
   @override
-  _ProductDetailPageState createState() => _ProductDetailPageState(
-      this.images, this.nom, this.prix, this.description);
+  _ProductDetailPageState createState() => _ProductDetailPageState(this.images,
+      this.nom, this.prix, this.description, this.idstyliste, this.email);
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage>
     with TickerProviderStateMixin {
+  int incremente = 0;
   AnimationController controller;
   Animation<double> animation;
   @override
@@ -34,14 +50,35 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     images = images;
     nom = nom;
     prix = prix;
+    idstyliste = idstyliste;
     description = description;
+    email = email;
   }
 
   String images;
   String nom;
   String prix;
   String description;
-  _ProductDetailPageState(this.images, this.nom, this.prix, this.description);
+  String idstyliste;
+  String email;
+  _ProductDetailPageState(this.images, this.nom, this.prix, this.description,
+      this.idstyliste, this.email);
+
+  Future<List<Products>> fetchProducts() async {
+    String url = "http://mestps.tech/send_commande.php";
+
+    var data = {
+      'nom': nom,
+      'idstyliste': idstyliste,
+      'prix': prix,
+      'user': email,
+      'images': images
+    };
+    final response = await http.post(url, body: json.encode(data));
+
+    return productsFromJson(response.body);
+  }
+
   @override
   void dispose() {
     controller.dispose();
@@ -229,7 +266,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                                 color: LightColor.red,
                               ),
                               TitleText(
-                                text: "$prix",
+                                text: "$prix\FCFA",
                                 fontSize: 25,
                               ),
                             ],
@@ -280,6 +317,10 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           text: "Available Size",
           fontSize: 14,
         ),
+        Badge(
+          badgeContent: Text('$incremente'),
+          child: Icon(Icons.shopping_cart),
+        ),
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -287,7 +328,21 @@ class _ProductDetailPageState extends State<ProductDetailPage>
             _sizeWidget("US 6"),
             _sizeWidget("US 7", isSelected: true),
             _sizeWidget("US 8"),
-            _sizeWidget("US 10"),
+            FlatButton(
+              child: Text(
+                "Ajouterr",
+              ),
+              color: Colors.orange,
+              textColor: Colors.white,
+              onPressed: () {
+                // ignore: unused_element
+                fetchProducts();
+                _showToast(context);
+                setState(() {
+                  incremente++;
+                });
+              },
+            ),
           ],
         )
       ],
@@ -306,10 +361,16 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         color:
             isSelected ? LightColor.orange : Theme.of(context).backgroundColor,
       ),
-      child: TitleText(
-        text: text,
-        fontSize: 16,
-        color: isSelected ? LightColor.background : LightColor.titleTextColor,
+      child: InkWell(
+        onTap: () {
+          // Navigator.of(context).push(new MaterialPageRoute(
+          // builder: (BuildContext context) => new ShoppingCartPage()));
+        },
+        child: TitleText(
+          text: text,
+          fontSize: 16,
+          color: isSelected ? LightColor.background : LightColor.titleTextColor,
+        ),
       ),
     ).ripple(() {}, borderRadius: BorderRadius.all(Radius.circular(13)));
   }
@@ -379,11 +440,20 @@ class _ProductDetailPageState extends State<ProductDetailPage>
 
   FloatingActionButton _flotingButton() {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () {
+        shoppingCart(context, email);
+      },
       backgroundColor: LightColor.orange,
       child: Icon(Icons.shopping_basket,
           color: Theme.of(context).floatingActionButtonTheme.backgroundColor),
     );
+  }
+
+  shoppingCart(BuildContext context, String email) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) => new ShoppingCartPage(
+              email: email,
+            )));
   }
 
   @override
@@ -417,4 +487,15 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       ),
     );
   }
+}
+
+_showToast(BuildContext context) {
+  final scaffold = Scaffold.of(context);
+  scaffold.showSnackBar(
+    SnackBar(
+      content: const Text('Added to favorite'),
+      action: SnackBarAction(
+          label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+    ),
+  );
 }
