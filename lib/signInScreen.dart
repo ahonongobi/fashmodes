@@ -1,17 +1,39 @@
 import 'package:banque/after_login.dart';
 //import 'package:banque/main.dart';
-import 'package:banque/register_page.dart';
+import 'package:banque/signUpScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 //import 'package:flutter/gestures.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+void main() => runApp(MyAppHome());
+
+class MyAppHome extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Fash Modes',
+      theme: new ThemeData(
+          primarySwatch: Colors.indigo,
+          fontFamily: GoogleFonts.openSans().fontFamily),
+      debugShowCheckedModeBanner: false,
+      home: new SignInScreen(),
+      //routes: <String, WidgetBuilder>{
+      // "/a": (BuildContext context) => SignInScreen("New page")
+      //},
+    );
+  }
+}
+
 class SignInScreen extends StatefulWidget {
+  const SignInScreen({Key key}) : super(key: key);
   @override
   _SignInScreenState createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  //Widget myForm() {}
   final emailController = new TextEditingController();
   final passwordController = new TextEditingController();
   bool _validatePassword = false;
@@ -87,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
       backgroundColor: Colors.white,
       body: ListView(
         children: <Widget>[
-          BackButtonWidget(),
+          // BackButtonWidget(),
           //Container(
 
           //height: 300,
@@ -96,6 +118,29 @@ class _SignInScreenState extends State<SignInScreen> {
           //fit: BoxFit.cover,
           //image: NetworkImage('https://metwo.fr/4064004.jpg'))),
           //),
+          Stack(children: <Widget>[
+            Image.network(
+                "https://images.unsplash.com/photo-1541256942802-7b29531f0df8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMzk2fQ&auto=format&fit=crop&w=500&q=60"),
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: Center(
+                child: Text("CONNECTEZ VOUS A LA PLATEFORME",
+                    style: TextStyle(color: Colors.white, fontSize: 20.0)),
+              ),
+            )
+          ]),
           SizedBox(
             height: 20,
           ),
@@ -105,17 +150,22 @@ class _SignInScreenState extends State<SignInScreen> {
               children: <Widget>[
                 IconButton(icon: Icon(Icons.email), onPressed: null),
                 Expanded(
-                    child: Container(
-                        margin: EdgeInsets.only(right: 20, left: 10),
-                        child: TextField(
-                          controller: emailController,
-                          decoration: InputDecoration(
-                            hintText: 'Email',
-                            errorText: _validateEmail
-                                ? 'veuillez entrer l adresse'
-                                : null,
-                          ),
-                        )))
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                          margin: EdgeInsets.only(right: 20, left: 10),
+                          child: TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              hintText: 'Email',
+                              errorText: _validateEmail
+                                  ? 'veuillez entrer l adresse'
+                                  : null,
+                            ),
+                          ))
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -125,17 +175,22 @@ class _SignInScreenState extends State<SignInScreen> {
               children: <Widget>[
                 IconButton(icon: Icon(Icons.lock), onPressed: null),
                 Expanded(
-                    child: Container(
-                        margin: EdgeInsets.only(right: 20, left: 10),
-                        child: TextField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: 'Mot de passe',
-                            errorText:
-                                _validatePassword ? 'password vide' : null,
-                          ),
-                        ))),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                          margin: EdgeInsets.only(right: 20, left: 10),
+                          child: TextField(
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              hintText: 'Mot de passe',
+                              errorText:
+                                  _validatePassword ? 'password vide' : null,
+                            ),
+                          ))
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

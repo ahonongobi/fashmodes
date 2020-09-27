@@ -1,6 +1,6 @@
-import 'package:banque/new_page.dart';
+import 'package:banque/signInScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:banque/register_page.dart';
+import 'package:banque/signUpScreen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;

@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:banque/new_page.dart';
+import 'package:banque/signInScreen.dart';
 import 'package:banque/profile.dart';
+import 'package:banque/src/widgets/extentions.dart';
 import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
@@ -10,7 +11,10 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 //import 'package:banque/Animation/FadeAnimation.dart';
+void main() => runApp(SignUpScreen());
+
 class SignUpScreen extends StatefulWidget {
+  SignUpScreen({Key key}) : super(key: key);
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -135,11 +139,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     }
 
+    backGobi() {}
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: ListView(
         children: <Widget>[
-          BackButtonWidget(),
+          Stack(children: <Widget>[
+            Image.network(
+                "https://images.unsplash.com/photo-1541256942802-7b29531f0df8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMzk2fQ&auto=format&fit=crop&w=500&q=60"),
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: Center(
+                child: Text("CREER UN NOUVEAU COMPTE",
+                    style: TextStyle(color: Colors.white, fontSize: 20.0)),
+              ),
+            )
+          ]),
           SizedBox(
             height: 20,
           ),
@@ -347,6 +375,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
               email: email,
             )));
   }
+}
+
+Widget backButtonWidgetSuper(BuildContext context) {
+  return Container(
+    height: 200,
+    decoration: BoxDecoration(
+        image: DecorationImage(
+            fit: BoxFit.cover,
+            image: NetworkImage(
+                'https://images.unsplash.com/photo-1541256942802-7b29531f0df8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjExMzk2fQ&auto=format&fit=crop&w=500&q=60'))),
+    child: Positioned(
+        child: Stack(
+      children: <Widget>[
+        Positioned(
+            top: 20,
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                Text(
+                  'Back',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                )
+              ],
+            )),
+        Positioned(
+          bottom: 20,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Creer un nouveau compte',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
+            ),
+          ),
+        )
+      ],
+    )),
+  );
 }
 
 class BackButtonWidget extends StatelessWidget {

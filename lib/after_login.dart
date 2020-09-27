@@ -7,8 +7,8 @@ import 'package:banque/styliste-product.dart';
 import 'package:http/http.dart' as http;
 import 'package:banque/categories.dart';
 import 'package:flutter/material.dart';
-import 'package:banque/new_page.dart'; //for signin screeen
-import 'package:banque/register_page.dart';
+import 'package:banque/signInScreen.dart'; //for signin screeen
+import 'package:banque/signUpScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';

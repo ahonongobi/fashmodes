@@ -196,7 +196,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     return FlatButton(
       onPressed: () {},
       child: Text(
-        "Valider",
+        "Payer",
         style: TextStyle(color: Colors.white),
       ),
       color: Colors.indigo,

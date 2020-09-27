@@ -1,7 +1,7 @@
 import 'package:banque/categories.dart';
 import 'package:banque/filter.dart';
-import 'package:banque/new_page.dart'; //for signin screeen
-import 'package:banque/register_page.dart';
+import 'package:banque/signInScreen.dart'; //for signin screeen
+import 'package:banque/signUpScreen.dart';
 import 'package:banque/search.dart';
 import 'package:banque/styliste-api.dart';
 import 'package:banque/styliste-product.dart';
@@ -10,13 +10,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rate_my_app/rate_my_app.dart';
 import 'package:share/share.dart';
 import 'package:banque/product.dart';
 import 'package:banque/product-api.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 //import 'package:cached_network_image/cached_network_image.dart';
 
@@ -336,10 +337,18 @@ class _HomeState extends State<Home> {
             new UserAccountsDrawerHeader(
               accountName: new Text("abyssinie"),
               accountEmail: new Text("abyssiniea@gmail.com"),
-              currentAccountPicture: new CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: new Text("A"),
+              currentAccountPicture: GestureDetector(
+                child: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  backgroundImage: NetworkImage(
+                      "http://mestps.tech/upload/categories/shooe_tilt_1.png"),
+                ),
               ),
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: NetworkImage(
+                          "http://mestps.tech/upload/categories/femme-barboteuse-serre-vetements-nouvelle-mode-den.jpg"),
+                      fit: BoxFit.cover)),
               // otherAccountsPictures: <Widget>[
               //new CircleAvatar(
               // backgroundColor: Colors.orange,
@@ -368,6 +377,7 @@ class _HomeState extends State<Home> {
               leading: new Icon(Icons.account_box),
               onTap: () {
                 Navigator.of(context).pop();
+
                 Navigator.of(context).push(new MaterialPageRoute(
                     builder: (BuildContext context) => new SignUpScreen()));
               },
@@ -377,8 +387,11 @@ class _HomeState extends State<Home> {
               title: new Text("Connexion"),
               onTap: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (BuildContext context) => new SignInScreen()));
+
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (BuildContext context) {
+                  return SignInScreen();
+                }));
               },
             ),
             new Divider(),
